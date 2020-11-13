@@ -2362,7 +2362,6 @@ Example showing the effect of `raw`:
 | `fill`      | patternType         | "solid" or "none"
 |             | fgColor             | COLOR_SPEC
 |             | bgColor             | COLOR_SPEC
-|             |                     |
 | `font`      | name                | "Calibri" // default
 |             | sz                  | "11" // font size in points
 |             | color               | COLOR_SPEC
@@ -2373,13 +2372,11 @@ Example showing the effect of `raw`:
 |             | outline             | true or false
 |             | shadow              | true or false
 |             | vertAlign           | true or false
-|             |                     |
 | `numFmt`    |                     | "0" // integer index to built in formats, see StyleBuilder.SSF property
 |             |                     | "0.00%" // string matching a built-in format, see StyleBuilder.SSF
 |             |                     | "0.0%" // string specifying a custom format
 |             |                     |  "0.00%;\\(0.00%\\);\\-;@" // string specifying a custom format, escaping special characters
 |             |                     | "m/dd/yy" // string a date format using Excel format notation
-|             |                     |
 | `alignment` | vertical            | "bottom" or "center" or "top"
 |             | horizontal          | "bottom" or "center" or "top"
 |             | wrapText            | true or false
@@ -2390,7 +2387,6 @@ Example showing the effect of `raw`:
 |             |                     | 135 is rotated down 45 degrees
 |             |                     | 180 is rotated down 180 degrees
 |             |                     | 255 is special, aligned vertically
-|             |                     |
 | `border`    | top                 | { style: BORDER_STYLE, color: COLOR_SPEC }
 |             | bottom              | { style: BORDER_STYLE, color: COLOR_SPEC }
 |             | left                | { style: BORDER_STYLE, color: COLOR_SPEC }
