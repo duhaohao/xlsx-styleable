@@ -1,6 +1,6 @@
 {
 	"name": "xlsx-styleable",
-	"version": "0.16.8",
+	"version": "0.17.0",
 	"author": "sheetjs-d",
 	"description": "SheetJS Spreadsheet data parser and writer",
 	"keywords": [

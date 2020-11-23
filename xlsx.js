@@ -4752,6 +4752,13 @@ var RELS_ROOT = writextag('Relationships', null, {
 	'xmlns': XMLNS.RELS
 });
 
+var DRAW_ROOT = writextag('xdr:wsDr', null, {
+	'xmlns:xdr': 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing',
+	'xmlns:a': 'http://schemas.openxmlformats.org/drawingml/2006/main'
+	//'xmlns:ns0': XMLNS.RELS,
+	// 'xmlns': XMLNS.RELS
+});
+
 /* TODO */
 function write_rels(rels) {
 	var o = [XML_HEADER, RELS_ROOT];
@@ -13732,7 +13739,6 @@ function write_ws_xml(idx, opts, wb, rels) {
 	}
 	if(!rels) rels = {};
 	ws['!comments'] = [];
-	var _drawing = [];
 
 	write_ws_xml_sheetpr(ws, wb, idx, opts, o);
 
@@ -13779,7 +13785,7 @@ function write_ws_xml(idx, opts, wb, rels) {
 	var relc = -1, rel, rId = -1;
 	if(ws['!links'].length > 0) {
 		o[o.length] = "<hyperlinks>";
-ws['!links'].forEach(function(l) {
+		ws['!links'].forEach(function(l) {
 			if(!l[1].Target) return;
 			rel = ({"ref":l[0]});
 			if(l[1].Target.charAt(0) != "#") {
@@ -13798,6 +13804,9 @@ ws['!links'].forEach(function(l) {
 
 	if(ws['!margins'] != null) o[o.length] =  write_ws_xml_margins(ws['!margins']);
 
+	// var _images = ws['!drawing'] || [];
+	// if (_images.length > 0) o[o.length] = '<drawing r:id="rId1"/>';
+
 	/* pageSetup */
 	/* headerFooter */
 	/* rowBreaks */
@@ -13808,11 +13817,12 @@ ws['!links'].forEach(function(l) {
 	if(!opts || opts.ignoreEC || (opts.ignoreEC == (void 0))) o[o.length] = writetag("ignoredErrors", writextag("ignoredError", null, {numberStoredAsText:1, sqref:ref}));
 
 	/* smartTags */
+	
 
-	if(_drawing.length > 0) {
+	if(ws['!drawing'] && ws['!drawing'].length > 0) {
 		rId = add_rels(rels, -1, "../drawings/drawing" + (idx+1) + ".xml", RELS.DRAW);
 		o[o.length] = writextag("drawing", null, {"r:id":"rId" + rId});
-		ws['!drawing'] = _drawing;
+		// ws['!drawing'] = _drawing;
 	}
 
 	if(ws['!comments'].length > 0) {
@@ -20866,6 +20876,7 @@ f = "docProps/app.xml";
 		var wsrels = {'!id':{}};
 		var ws = wb.Sheets[wb.SheetNames[rId-1]];
 		var _type = (ws || {})["!type"] || "sheet";
+		
 		switch(_type) {
 		case "chart":
 			/* falls through */
@@ -20877,6 +20888,23 @@ f = "docProps/app.xml";
 		}
 
 		if(ws) {
+			if(ws['!drawing']) {
+				images = ws['!drawing'];
+				const draw_rels = [];
+				for (var sId=1; sId < images.length + 1; ++sId) {
+					var image = images[sId - 1];
+					const sf = 'xl/media/' + image.name;
+					zip.file(sf, image.data, image.opts);
+					add_rels(draw_rels, -1, "../media/" + image.name, RELS.IMG);
+				}
+				if(images.length > 0){
+					zip_add_file(zip, "xl/drawings/drawing" + rId + "." + wbext, write_drawing(images));
+					zip_add_file(zip, "xl/drawings/_rels/drawing" + rId + "." + wbext + ".rels", write_rels(draw_rels));
+					ct.drawings.push("xl/drawings/drawing" + rId + "." + wbext);
+				}
+				
+			}
+
 			var comments = ws['!comments'];
 			var need_vml = false;
 			if(comments && comments.length > 0) {
@@ -20892,7 +20920,6 @@ f = "docProps/app.xml";
 			delete ws['!comments'];
 			delete ws['!legacy'];
 		}
-
 		if(wsrels['!id'].rId1) zip_add_file(zip, get_rels_path(f), write_rels(wsrels));
 	}
 
@@ -20936,6 +20963,43 @@ f = "docProps/app.xml";
 	delete opts.revssf; delete opts.ssf;
 	return zip;
 }
+
+function write_drawing(images) {
+	var o = [XML_HEADER,DRAW_ROOT]
+
+	for (var i = 0; i < images.length; i++) {
+		var image = images[i];
+    console.log("spr: ", image.spPr);
+		var pos = image.position || {};
+    var skipXFrm = !image.spPr;
+		if (pos.type === 'twoCellAnchor') {
+			var from = pos.from || {}, to = pos.to || {},
+			    fromCol = from.col || 0, toCol = to.col || 0,
+			    fromRow = from.row || 0, toRow = to.row || 0,
+          fromColOff  = from.colOff || 0,
+          fromRowOff  = from.rowOff || 0,
+          toColOff    = to.colOff   || 0,
+          toRowOff    = to.rowOff   || 0;
+
+			var twoCell = '<xdr:from><xdr:col>'+fromCol+'</xdr:col><xdr:colOff>'+fromColOff+'</xdr:colOff><xdr:row>'+fromRow+'</xdr:row><xdr:rowOff>'+fromRowOff + '</xdr:rowOff></xdr:from>';
+			twoCell    += '<xdr:to><xdr:col>' + toCol+ '</xdr:col><xdr:colOff>'+toColOff+'</xdr:colOff><xdr:row>'+toRow+'</xdr:row><xdr:rowOff>'+toRowOff+'</xdr:rowOff></xdr:to>';
+			twoCell    += '<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="'+(i+1)+'" name="'+image.name+'">';
+			twoCell    += '</xdr:cNvPr><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>';
+			twoCell    += '<xdr:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId'+(i+1)+'">';
+			twoCell    += '<a:extLst><a:ext><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip>';
+			twoCell    += '<a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr>';
+      if(!skipXFrm){
+        twoCell    += '<a:xfrm><a:off x="'+ image.spPr.xfrm.off.x + '" y= "'+  image.spPr.xfrm.off.y + '"/><a:ext cx="'+ image.spPr.xfrm.ext.cx+ '" cy="'+  image.spPr.xfrm.ext.cy + '"/></a:xfrm>';
+      }
+      twoCell    += '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/>';
+			o[o.length] = (writextag('xdr:twoCellAnchor', twoCell, images[i].attrs));
+		}
+	}
+
+	if(o.length>2){ o[o.length] = ('</xdr:wsDr>'); o[1]=o[1].replace("/>",">"); }
+	return o.join("");
+}
+
 function firstbyte(f,o) {
 	var x = "";
 	switch((o||{}).type || "base64") {
