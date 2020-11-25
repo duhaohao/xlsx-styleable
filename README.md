@@ -2371,7 +2371,6 @@ Example showing the effect of `raw`:
 |             | strike              | true or false
 |             | outline             | true or false
 |             | shadow              | true or false
-|             | vertAlign           | true or false
 | `numFmt`    |                     | "0" // integer index to built in formats, see StyleBuilder.SSF property
 |             |                     | "0.00%" // string matching a built-in format, see StyleBuilder.SSF
 |             |                     | "0.0%" // string specifying a custom format

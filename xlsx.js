@@ -20986,7 +20986,7 @@ function write_drawing(images) {
 			twoCell    += '<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="'+(i+1)+'" name="'+image.name+'">';
 			twoCell    += '</xdr:cNvPr><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>';
 			twoCell    += '<xdr:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId'+(i+1)+'">';
-			twoCell    += '<a:extLst><a:ext><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip>';
+			twoCell    += '<a:extLst><a:ext uri=""><a14:useLocalDpi val="0" xmlns="" xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"/></a:ext></a:extLst></a:blip>';
 			twoCell    += '<a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr>';
       if(!skipXFrm){
         twoCell    += '<a:xfrm><a:off x="'+ image.spPr.xfrm.off.x + '" y= "'+  image.spPr.xfrm.off.y + '"/><a:ext cx="'+ image.spPr.xfrm.ext.cx+ '" cy="'+  image.spPr.xfrm.ext.cy + '"/></a:xfrm>';
